@@ -22,7 +22,7 @@ jobs:
       with:
         registry: ghcr.io
         username: evgsentrium
-        password: ${{ secrets.PAT }}
+        password: ${{ secrets.GITHUB_TOKEN }}
 
     # - name: Extract metadata (tags, labels) for Docker
     #   id: meta
