@@ -1,0 +1,76 @@
+name: Create release notes
+
+on:
+  workflow_dispatch:
+
+jobs:
+  create_release_notes:
+    runs-on: ubuntu-24.04
+    
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clone vyos-build repo
+        uses: actions/checkout@v4
+        with:
+          repository: vyos/vyos-build
+          path: vyos-build
+          fetch-depth: 0
+      - name: Clone vyos-1x source code
+        uses: actions/checkout@v4
+        with:
+          repository: vyos/vyos-1x
+          path: vyos-1x
+          fetch-depth: 0
+      - name: Get commit IDs for changelog
+        id: commit_ids
+        run: |
+          set -ex
+          cd vyos-build
+          git log --since "2025-05-12T00:20:44Z" --format="%H" --reverse
+          echo "CHANGELOG_COMMIT_VYOS_BUILD=$(git log --since "2025-05-12T00:20:44Z" --format="%H" --reverse | head -n1)" >> $GITHUB_OUTPUT
+          cd ../vyos-1x
+          git log --since "2025-05-12T00:20:44Z" --format="%H" --reverse
+          echo "CHANGELOG_COMMIT_VYOS_1X=$(git log --since "2025-05-12T00:20:44Z" --format="%H" --reverse | head -n1)" >> $GITHUB_OUTPUT
+
+      - name: "Release publishing: generate changelog for vyos-1x"
+        id: generate_changelog_for_vyos-1x
+        uses: mikepenz/release-changelog-builder-action@v5.3.0
+        with:
+          owner: "vyos"
+          repo: "vyos-1x"
+          fetchReviewers: false
+          fromTag: ${{ steps.commit_ids.outputs.CHANGELOG_COMMIT_VYOS_1X }}
+          toTag: HEAD
+          configurationJson: |
+            {
+              "categories": [{"title": "", "labels": []}],
+              "template": "#{{CHANGELOG}}",
+              "pr_template": "- #{{TITLE}}\n   - PR: vyos/vyos-1x##{{NUMBER}}"
+            }
+
+      - name: "Release publishing: generate changelog for vyos-build"
+        id: generate_changelog_for_vyos-build
+        uses: mikepenz/release-changelog-builder-action@v5.3.0
+        with:
+          owner: "vyos"
+          repo: "vyos-build"
+          fetchReviewers: false
+          fromTag: ${{ steps.commit_ids.outputs.CHANGELOG_COMMIT_VYOS_BUILD }}
+          toTag: HEAD
+          configurationJson: |
+            {
+              "categories": [{"title": "", "labels": []}],
+              "template": "#{{CHANGELOG}}",
+              "pr_template": "- #{{TITLE}}\n   - PR: vyos/vyos-build##{{NUMBER}}"
+            }
+
+      - name: "Release publishing: generate CHANGELOG.md"
+        run: |
+          cat <<EOF > CHANGELOG.md
+          ## vyos-1x
+          ${{ steps.generate_changelog_for_vyos-1x.outputs.changelog }}
+          ## vyos-build
+          ${{ steps.generate_changelog_for_vyos-build.outputs.changelog }}
+          EOF
+          cat CHANGELOG.md
+
