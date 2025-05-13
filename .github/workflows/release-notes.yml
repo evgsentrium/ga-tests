@@ -26,11 +26,11 @@ jobs:
         run: |
           set -ex
           cd vyos-build
-          git log --since "2025-05-12T00:20:44Z" --format="%H" --reverse
-          echo "CHANGELOG_COMMIT_VYOS_BUILD=$(git log --since "2025-05-12T00:20:44Z" --format="%H" --reverse | head -n1)" >> $GITHUB_OUTPUT
+          git log --since "2025-05-13T00:20:44Z" --format="%H" --reverse
+          echo "CHANGELOG_COMMIT_VYOS_BUILD=$(git log --since "2025-05-13T00:20:44Z" --format="%H" --reverse | head -n1)" >> $GITHUB_OUTPUT
           cd ../vyos-1x
-          git log --since "2025-05-12T00:20:44Z" --format="%H" --reverse
-          echo "CHANGELOG_COMMIT_VYOS_1X=$(git log --since "2025-05-12T00:20:44Z" --format="%H" --reverse | head -n1)" >> $GITHUB_OUTPUT
+          git log --since "2025-05-13T00:20:44Z" --format="%H" --reverse
+          echo "CHANGELOG_COMMIT_VYOS_1X=$(git log --since "2025-05-13T00:20:44Z" --format="%H" --reverse | head -n1)" >> $GITHUB_OUTPUT
 
       - name: "Release publishing: generate changelog for vyos-1x"
         id: generate_changelog_for_vyos-1x
