@@ -27,9 +27,20 @@ jobs:
           set -ex
           cd vyos-build
           git log --since "2025-05-13T00:20:44Z" --format="%H" --reverse
-          echo "CHANGELOG_COMMIT_VYOS_BUILD=$(git log --since "2025-05-13T00:20:44Z" --format="%H" --reverse | head -n1)" >> $GITHUB_OUTPUT
+          vyos_build_latest_commit=$(git log --since "2025-05-13T00:20:44Z" --format="%H" --reverse | head -n1)
+          if [ -n "$vyos_build_latest_commit" ]; then
+            echo "CHANGELOG_COMMIT_VYOS_BUILD=$(git log --since "2025-05-13T00:20:44Z" --format="%H" --reverse | head -n1)" >> $GITHUB_OUTPUT
+          else
+            echo "CHANGELOG_COMMIT_VYOS_BUILD=HEAD" >> $GITHUB_OUTPUT
+          fi
           cd ../vyos-1x
           git log --since "2025-05-13T00:20:44Z" --format="%H" --reverse
+          vyos_1x_latest_commit=$(git log --since "2025-05-13T00:20:44Z" --format="%H" --reverse | head -n1)
+          if [ -n "$vyos_1x_latest_commit" ]; then
+            echo "CHANGELOG_COMMIT_VYOS_1X=$(git log --since "2025-05-13T00:20:44Z" --format="%H" --reverse | head -n1)" >> $GITHUB_OUTPUT
+          else
+            echo "CHANGELOG_COMMIT_VYOS_1X=HEAD" >> $GITHUB_OUTPUT
+          fi
           echo "CHANGELOG_COMMIT_VYOS_1X=$(git log --since "2025-05-13T00:20:44Z" --format="%H" --reverse | head -n1)" >> $GITHUB_OUTPUT
 
       - name: "Release publishing: generate changelog for vyos-1x"
